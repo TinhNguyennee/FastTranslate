@@ -1,0 +1,6 @@
+{
+  "name": "Khóa Văn Bản Dịch Thuật",
+  "description": "Một ứng dụng đơn giản giúp bạn khóa văn bản từ ô nhập liệu thành dạng đoạn văn để dễ dàng sử dụng tính năng dịch tự động trên mọi trình duyệt, hỗ trợ chế độ sáng tối.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
