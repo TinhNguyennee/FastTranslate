@@ -1,13 +1,294 @@
 <!doctype html>
-<html lang="en">
+<html lang="vi">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>My Google AI Studio App</title>
+    <title>Khóa Văn Bản Dịch Thuật - Đơn Giản & Tiện Lợi</title>
+    <!-- Link to the compiled tailwindcss file in our workspace -->
+    <link rel="stylesheet" href="/src/index.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+      body {
+        font-family: 'Plus Jakarta Sans', sans-serif;
+      }
+      pre, code {
+        font-family: 'JetBrains Mono', monospace;
+      }
+    </style>
   </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
+  <body class="min-h-screen text-slate-800 dark:text-zinc-200 bg-slate-50 dark:bg-zinc-950 transition-colors duration-300 flex flex-col justify-between">
+    
+    <!-- Top Bar Header -->
+    <header class="max-w-3xl w-full mx-auto px-4 py-6 flex items-center justify-between border-b border-slate-200 dark:border-zinc-800">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-orange-500 flex items-center justify-center text-white shadow-md shadow-orange-500/20">
+          <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 8 6 6 6-6"/><path d="m4 14 6 6 8-8"/></svg>
+        </div>
+        <div>
+          <h1 class="text-base font-bold text-slate-900 dark:text-zinc-50 tracking-tight leading-tight">Khóa Dịch Thuật</h1>
+          <p class="text-[11px] text-slate-500 dark:text-zinc-400">Đọc &amp; Dịch văn bản trên trình duyệt siêu tốc</p>
+        </div>
+      </div>
+      
+      <!-- Actions top right -->
+      <div class="flex items-center gap-2">
+        <button id="btn-sample" class="text-xs px-3 py-1.5 font-medium rounded-lg bg-orange-50 hover:bg-orange-100 text-orange-700 dark:bg-orange-950/40 dark:hover:bg-orange-900/40 dark:text-orange-400 transition-colors border border-orange-200/40 dark:border-orange-900/30">
+          Văn bản mẫu
+        </button>
+        <!-- Theme Toggle -->
+        <button id="btn-theme-toggle" class="p-2 rounded-xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 text-slate-500 dark:text-zinc-400 hover:bg-slate-50 dark:hover:bg-zinc-800 transition shadow-sm" title="Thay đổi chế độ sáng/tối">
+          <!-- Moon Icon -->
+          <svg id="icon-moon" class="w-5 h-5 hidden dark:block" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+          <!-- Sun Icon -->
+          <svg id="icon-sun" class="w-5 h-5 block dark:hidden" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="flex-1 max-w-3xl w-full mx-auto px-4 py-8 flex flex-col justify-center">
+      <div class="bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-2xl shadow-sm overflow-hidden flex flex-col transition-all duration-300">
+        
+        <!-- Editor and Display Container -->
+        <div class="p-6 min-h-[300px] md:min-h-[380px] flex flex-col relative">
+          
+          <!-- Tip instructions when locked -->
+          <div id="tip-translate" class="hidden mb-4 p-3 bg-blue-50/70 border border-blue-200/50 dark:bg-blue-950/20 dark:border-blue-900/30 rounded-xl text-blue-800 dark:text-blue-300 text-xs">
+            <div class="flex gap-2 items-start">
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-blue-500 shrink-0 mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+              <div>
+                <span class="font-semibold block mb-0.5">Văn bản đã được khóa thành dạng đọc!</span>
+                Bây giờ, bạn có thể <strong>click chuột phải</strong> lên trang này và chọn <strong>"Dịch sang tiếng Việt"</strong> (hoặc sử dụng nút dịch tự động của trình duyệt) để xem bản dịch tức thời.
+              </div>
+            </div>
+          </div>
+
+          <!-- Typing screen (<textarea>) -->
+          <div id="editor-wrapper" class="flex-1 flex flex-col">
+            <textarea id="text-input" class="w-full flex-1 min-h-[250px] resize-none bg-transparent outline-none text-base md:text-lg leading-relaxed placeholder-slate-400 dark:placeholder-zinc-600 border-none p-0 focus:ring-0 text-slate-800 dark:text-zinc-200" placeholder="Nhập hoặc dán nội dung văn bản tiếng nước ngoài của bạn tại đây..."></textarea>
+          </div>
+
+          <!-- Pure View screen (<p> tags generated here) -->
+          <div id="viewer-wrapper" class="hidden flex-1 flex flex-col prose dark:prose-invert max-w-none text-slate-800 dark:text-zinc-100 placeholder-ready selection:bg-orange-200 dark:selection:bg-orange-950">
+            <div id="rendered-paragraphs" class="space-y-4"></div>
+          </div>
+
+        </div>
+
+        <!-- Footer Statistics and Info -->
+        <div class="px-6 py-2.5 bg-slate-50/60 dark:bg-zinc-900/60 border-t border-slate-100 dark:border-zinc-800/60 flex items-center justify-between text-[11px] font-mono text-slate-400 dark:text-zinc-500">
+          <div>
+            Ký tự: <span id="count-chars" class="font-semibold text-slate-600 dark:text-zinc-300">0</span>
+          </div>
+          <div class="flex items-center gap-1.5">
+            <span id="badge-status-dot" class="w-2 h-2 rounded-full bg-orange-400"></span>
+            <span id="badge-status-text">Đang chỉnh sửa</span>
+          </div>
+        </div>
+
+        <!-- Toolbar Controller -->
+        <div class="p-6 bg-slate-50 dark:bg-zinc-900/40 border-t border-slate-200 dark:border-zinc-800/80 flex flex-col sm:flex-row items-center justify-between gap-4">
+          
+          <!-- Helper Tools (Format, Delete, Copy) -->
+          <div class="flex items-center gap-2 w-full sm:w-auto justify-start">
+            <button id="btn-clear" class="group flex items-center gap-1.5 px-3 py-2 text-xs font-semibold rounded-lg text-slate-500 hover:text-red-500 dark:text-zinc-400 dark:hover:text-red-400 transition-colors" title="Xóa toàn bộ văn bản">
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></svg>
+              <span>Xóa sạch</span>
+            </button>
+
+            <button id="btn-copy" class="group flex items-center gap-1.5 px-3 py-2 text-xs font-semibold rounded-lg text-slate-500 hover:text-orange-500 dark:text-zinc-400 dark:hover:text-orange-400 transition-colors" title="Sao chép toàn bộ văn bản">
+              <!-- Copy Icon -->
+              <svg id="icon-copy" class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
+              <span id="copy-text">Sao chép</span>
+            </button>
+          </div>
+
+          <!-- Core Flow Trigger States -->
+          <div class="w-full sm:w-auto">
+            <!-- Edit to Lock state -->
+            <button id="btn-flow" class="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-2.5 bg-orange-500 hover:bg-orange-600 active:bg-orange-700 text-white font-semibold text-sm rounded-xl shadow-md shadow-orange-500/10 transition active:scale-95">
+              <svg id="icon-flow" class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+              <span id="btn-flow-text">Khóa văn bản để Dịch</span>
+            </button>
+          </div>
+
+        </div>
+
+      </div>
+    </main>
+
+    <!-- Simple Support Browser footer -->
+    <footer class="text-center py-6 text-xs text-slate-400 dark:text-zinc-600 border-t border-slate-200 dark:border-zinc-900 max-w-3xl w-full mx-auto px-4">
+      <p>Ứng dụng giúp khóa trường soạn thảo để tính năng tự động dịch của trình duyệt (Chrome, Safari, Edge,...) nhận dạng và dịch được toàn bộ văn bản.</p>
+    </footer>
+
+    <!-- App Logic Script -->
+    <script>
+      // DOM Elements
+      const htmlRoot = document.documentElement;
+      const textInput = document.getElementById('text-input');
+      const renderedParagraphs = document.getElementById('rendered-paragraphs');
+      const editorWrapper = document.getElementById('editor-wrapper');
+      const viewerWrapper = document.getElementById('viewer-wrapper');
+      const tipTranslate = document.getElementById('tip-translate');
+      
+      const btnThemeToggle = document.getElementById('btn-theme-toggle');
+      const btnSample = document.getElementById('btn-sample');
+      const btnClear = document.getElementById('btn-clear');
+      const btnCopy = document.getElementById('btn-copy');
+      const copyText = document.getElementById('copy-text');
+      const btnFlow = document.getElementById('btn-flow');
+      const btnFlowText = document.getElementById('btn-flow-text');
+      const iconFlow = document.getElementById('icon-flow');
+      const badgeStatusDot = document.getElementById('badge-status-dot');
+      const badgeStatusText = document.getElementById('badge-status-text');
+      const countChars = document.getElementById('count-chars');
+
+      // State
+      let isLocked = false;
+      let text = localStorage.getItem('translation_pad_text') || '';
+      let isDark = localStorage.getItem('translation_pad_theme') === 'dark' || 
+                   (!localStorage.getItem('translation_pad_theme') && window.matchMedia('(prefers-color-scheme: dark)').matches);
+
+      // Initialize App
+      function init() {
+        // App Theme initialization
+        setTheme(isDark);
+
+        // App Text initialization
+        textInput.value = text;
+        countChars.textContent = text.length;
+
+        // Listen to inputs
+        textInput.addEventListener('input', (e) => {
+          text = e.target.value;
+          localStorage.setItem('translation_pad_text', text);
+          countChars.textContent = text.length;
+        });
+
+        // Theme Switcher trigger
+        btnThemeToggle.addEventListener('click', () => {
+          isDark = !isDark;
+          setTheme(isDark);
+        });
+
+        // Sample loader trigger
+        btnSample.addEventListener('click', () => {
+          text = "Welcome to the quick translation tool!\n\nThis simple utility turns text inputs (which browsers cannot translate when they are inside editable textboxes) into pure readable text paragraphs.\n\nNow you can copy text here, press \"Khóa văn bản để Dịch\", and use your native browser translation tool directly!";
+          textInput.value = text;
+          localStorage.setItem('translation_pad_text', text);
+          countChars.textContent = text.length;
+          if (isLocked) {
+            toggleLockFlow(false);
+          }
+        });
+
+        // Clear text trigger
+        btnClear.addEventListener('click', () => {
+          if (confirm('Bạn có chắc chắn muốn xóa toàn bộ văn bản?')) {
+            text = '';
+            textInput.value = '';
+            localStorage.setItem('translation_pad_text', '');
+            countChars.textContent = '0';
+            if (isLocked) {
+              toggleLockFlow(false);
+            }
+          }
+        });
+
+        // Copy trigger
+        btnCopy.addEventListener('click', () => {
+          let textToCopy = '';
+          if (isLocked) {
+            // When locked, browser translation can happen inside the DOM elements.
+            // Grabbing rendered text ensures we capture the newly translated words instead of static original elements!
+            textToCopy = renderedParagraphs.innerText || text;
+          } else {
+            textToCopy = text;
+          }
+
+          navigator.clipboard.writeText(textToCopy).then(() => {
+            copyText.textContent = 'Đã sao chép!';
+            setTimeout(() => {
+              copyText.textContent = 'Sao chép';
+            }, 2000);
+          }).catch(err => {
+            console.error('Không thể sao chép văn bản:', err);
+          });
+        });
+
+        // Toggle state flow click trigger
+        btnFlow.addEventListener('click', () => {
+          if (!text.trim()) {
+            alert('Vui lòng nhập nội dung trước khi khóa!');
+            return;
+          }
+          toggleLockFlow(!isLocked);
+        });
+      }
+
+      // Display theme change helpers
+      function setTheme(darkState) {
+        if (darkState) {
+          htmlRoot.classList.add('dark');
+          localStorage.setItem('translation_pad_theme', 'dark');
+        } else {
+          htmlRoot.classList.remove('dark');
+          localStorage.setItem('translation_pad_theme', 'light');
+        }
+      }
+
+      // Toggle lock presentation states
+      function toggleLockFlow(lock) {
+        isLocked = lock;
+        if (isLocked) {
+          // Process text into paragraph segments
+          renderedParagraphs.innerHTML = '';
+          const paragraphs = text.split(/\n+/).filter(p => p.trim() !== '');
+          paragraphs.forEach(p => {
+            const paragraphEl = document.createElement('p');
+            paragraphEl.className = 'text-base md:text-lg leading-relaxed text-slate-800 dark:text-zinc-100 hover:text-orange-500 transition-colors border-l-2 border-transparent hover:border-orange-500 pl-3.5';
+            paragraphEl.textContent = p.trim();
+            renderedParagraphs.appendChild(paragraphEl);
+          });
+
+          // Toggle displays with classes
+          editorWrapper.classList.add('hidden');
+          viewerWrapper.classList.remove('hidden');
+          tipTranslate.classList.remove('hidden');
+
+          // Style and update trigger button to unlock mode
+          btnFlowText.textContent = 'Sửa văn bản';
+          badgeStatusDot.className = 'w-2 h-2 rounded-full bg-emerald-500 animate-pulse';
+          badgeStatusText.textContent = 'Trạng thái: Đọc & Dịch (Đã khóa)';
+          
+          // Switch lock SVG icon into unlock SVG icon (a padlock unlocked)
+          iconFlow.innerHTML = '<rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/>';
+        } else {
+          // Switch to writing mode
+          editorWrapper.classList.remove('hidden');
+          viewerWrapper.classList.add('hidden');
+          tipTranslate.classList.add('hidden');
+
+          // Restyle button & badges to writing mode state
+          btnFlowText.textContent = 'Khóa văn bản để Dịch';
+          badgeStatusDot.className = 'w-2 h-2 rounded-full bg-orange-400';
+          badgeStatusText.textContent = 'Đang chỉnh sửa';
+          
+          // Original locked SVG padlock
+          iconFlow.innerHTML = '<rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>';
+          
+          // Focus editing cursor
+          setTimeout(() => {
+            textInput.focus();
+          }, 50);
+        }
+      }
+
+      // Start the application logic
+      window.addEventListener('DOMContentLoaded', init);
+    </script>
   </body>
 </html>
-
